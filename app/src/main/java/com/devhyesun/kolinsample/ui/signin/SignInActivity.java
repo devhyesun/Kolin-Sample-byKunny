@@ -19,6 +19,7 @@ import com.devhyesun.kolinsample.api.AuthApi;
 import com.devhyesun.kolinsample.api.GithubApiProvider;
 import com.devhyesun.kolinsample.api.model.GithubAccessToken;
 import com.devhyesun.kolinsample.data.AuthTokenProvider;
+import com.devhyesun.kolinsample.ui.main.MainActivity;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -57,8 +58,8 @@ public class SignInActivity extends AppCompatActivity {
         api = GithubApiProvider.provideAuthApi();
         authTokenProvider = new AuthTokenProvider(this);
 
-        if(authTokenProvider.getToken() != null) {
-//            lanchMainActivity();
+        if (authTokenProvider.getToken() != null) {
+            lanchMainActivity();
         }
     }
 
@@ -69,12 +70,12 @@ public class SignInActivity extends AppCompatActivity {
         showProgress();
 
         Uri uri = intent.getData();
-        if(uri == null) {
+        if (uri == null) {
             throw new IllegalArgumentException("No data exists");
         }
 
         String code = uri.getQueryParameter("code");
-        if(code == null) {
+        if (code == null) {
             throw new IllegalStateException("No code exists");
         }
 
@@ -91,9 +92,10 @@ public class SignInActivity extends AppCompatActivity {
                 hideProgress();
 
                 GithubAccessToken token = response.body();
-                if(response.isSuccessful() && token != null) {
+                if (response.isSuccessful() && token != null) {
                     authTokenProvider.updateToken(token.accessToken);
 
+                    lanchMainActivity();
                 } else {
                     showError(new IllegalStateException("Not successful : " + response.message()));
                 }
@@ -119,5 +121,11 @@ public class SignInActivity extends AppCompatActivity {
 
     private void showError(Throwable throwable) {
         Toast.makeText(this, throwable.getMessage(), Toast.LENGTH_LONG).show();
+    }
+
+    private void lanchMainActivity() {
+        startActivity(new Intent(SignInActivity.this, MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
     }
 }

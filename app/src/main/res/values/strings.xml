@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">KolinSample</string>
     <string name="start_with_github">Start with Github</string>
+    <string name="no_recent_repositories">No recent repositories.</string>
 </resources>
