@@ -18,7 +18,7 @@ public final class GithubRepo {
     @SerializedName("updated_at")
     public final String updateAt;
 
-    @SerializedName("starazers_count")
+    @SerializedName("stargazers_count")
     public int stars;
 
     public GithubRepo(String name, String fullName, GithubOwner owner, String description, String language, String updateAt, int stars) {

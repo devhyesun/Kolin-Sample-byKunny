@@ -1,11 +1,11 @@
 package com.devhyesun.kolinsample.ui.search;
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -37,6 +37,20 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.Repository
         Glide.with(repositoryHolder.itemView.getContext())
                 .load(githubRepo.owner.avatarUrl)
                 .into(repositoryHolder.ivProfile);
+
+        repositoryHolder.tvName.setText(githubRepo.fullName);
+        repositoryHolder.tvLanguage.setText(TextUtils.isEmpty(githubRepo.language)
+                ? repositoryHolder.itemView.getContext().getText(R.string.no_language_specified)
+                : githubRepo.language);
+
+        repositoryHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (itemClickListener != null) {
+                    itemClickListener.onItemClick(githubRepo);
+                }
+            }
+        });
     }
 
     @Override

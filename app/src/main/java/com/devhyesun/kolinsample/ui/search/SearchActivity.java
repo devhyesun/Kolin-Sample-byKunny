@@ -19,6 +19,7 @@ import com.devhyesun.kolinsample.api.GithubApi;
 import com.devhyesun.kolinsample.api.GithubApiProvider;
 import com.devhyesun.kolinsample.api.model.GithubRepo;
 import com.devhyesun.kolinsample.api.model.RepoSearchResponse;
+import com.devhyesun.kolinsample.ui.repository.RepositoryActivity;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -92,6 +93,10 @@ public class SearchActivity extends AppCompatActivity implements SearchAdapter.I
 
     @Override
     public void onItemClick(GithubRepo repository) {
+        Intent intent = new Intent(this, RepositoryActivity.class);
+        intent.putExtra(RepositoryActivity.KEY_USER_LOGIN, repository.owner.login);
+        intent.putExtra(RepositoryActivity.KEY_REPO_NAME, repository.name);
+        startActivity(intent);
     }
 
     private void searchRepository(String query) {

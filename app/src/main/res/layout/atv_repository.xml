@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="8dp"
+    android:paddingTop="12dp"
+    android:paddingRight="8dp"
+    android:paddingBottom="12dp"
+    tools:context=".ui.repository.RepositoryActivity">
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/cl_repository_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/iv_repository_profile"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            tools:src="@drawable/ic_launcher_background" />
+
+        <TextView
+            android:id="@+id/tv_repository_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="4dp"
+            android:maxLines="2"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:textColor="@color/githubBlue"
+            app:layout_constraintLeft_toRightOf="@+id/iv_repository_profile"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="username/myrepository" />
+
+        <TextView
+            android:id="@+id/tv_repository_star"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:drawableStart="@drawable/ic_star_black"
+            android:drawableLeft="@drawable/ic_star_black"
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textColor="@color/githubBlack"
+            app:layout_constraintLeft_toRightOf="@+id/iv_repository_profile"
+            app:layout_constraintTop_toBottomOf="@+id/tv_repository_name"
+            tools:text="100 Stars" />
+
+        <ImageView
+            android:id="@+id/iv_repository_description"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="25dp"
+            android:src="@drawable/ic_description_black"
+            android:tint="@color/gray"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_repository_profile" />
+
+        <TextView
+            android:id="@+id/tv_repository_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintLeft_toRightOf="@id/iv_repository_description"
+            app:layout_constraintTop_toBottomOf="@id/iv_repository_profile"
+            tools:text="My Description" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="@string/description"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            app:layout_constraintLeft_toRightOf="@id/iv_repository_description"
+            app:layout_constraintTop_toBottomOf="@id/tv_repository_description" />
+
+        <ImageView
+            android:id="@+id/iv_repository_language"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="25dp"
+            android:src="@drawable/ic_language_black"
+            android:tint="@color/gray"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_repository_description" />
+
+        <TextView
+            android:id="@+id/tv_repository_language"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintLeft_toRightOf="@id/iv_repository_language"
+            app:layout_constraintTop_toBottomOf="@id/iv_repository_description"
+            tools:text="Kotlin" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="@string/language"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            app:layout_constraintLeft_toRightOf="@id/iv_repository_language"
+            app:layout_constraintTop_toBottomOf="@id/tv_repository_language" />
+
+        <ImageView
+            android:id="@+id/iv_repository_last_update"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="25dp"
+            android:src="@drawable/ic_update_black"
+            android:tint="@color/gray"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_repository_language" />
+
+        <TextView
+            android:id="@+id/tv_repository_last_update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintLeft_toRightOf="@id/iv_repository_last_update"
+            app:layout_constraintTop_toBottomOf="@id/iv_repository_language"
+            tools:text="yyyy/MM/dd" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="@string/last_update"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            app:layout_constraintLeft_toRightOf="@id/iv_repository_last_update"
+            app:layout_constraintTop_toBottomOf="@id/tv_repository_last_update" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <ProgressBar
+        android:id="@+id/pb_repository"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_repository_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/githubBlack"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</android.support.constraint.ConstraintLayout>

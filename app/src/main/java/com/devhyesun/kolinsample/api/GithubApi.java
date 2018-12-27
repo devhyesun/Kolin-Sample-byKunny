@@ -12,6 +12,6 @@ public interface GithubApi {
     @GET("search/repositories")
     Call<RepoSearchResponse> searchRepository(@Query("q") String query);
 
-    @GET("repo/{owner}/{name}")
+    @GET("repos/{owner}/{name}")
     Call<GithubRepo> getRepository(@Path("owner") String ownerLogin, @Path("name") String repoName);
 }
