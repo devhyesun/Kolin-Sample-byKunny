@@ -47,8 +47,8 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.RepositoryHolder>() {
         return githubRepoList.size
     }
 
-    fun setGithubRepoList(githubRepoList: MutableList<GithubRepo>) {
-        this.githubRepoList = githubRepoList
+    fun setGithubRepoList(githubRepoList: List<GithubRepo>) {
+        this.githubRepoList = githubRepoList.toMutableList()
     }
 
     fun setItemClickListener(itemClickListener: ItemClickListener?) {
