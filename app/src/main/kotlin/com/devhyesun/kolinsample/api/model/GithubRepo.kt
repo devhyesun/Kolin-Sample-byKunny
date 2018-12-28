@@ -6,7 +6,7 @@ class GithubRepo(
     val name: String,
     @field:SerializedName("full_name") val fullName: String,
     val owner: GithubOwner,
-    val description: String,
-    val language: String,
+    val description: String?,
+    val language: String?,
     @field:SerializedName("updated_at") val updateAt: String,
     @field:SerializedName("stargazers_count") var stars: Int)
