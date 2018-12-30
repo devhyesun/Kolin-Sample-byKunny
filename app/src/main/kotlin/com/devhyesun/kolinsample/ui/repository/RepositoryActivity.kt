@@ -6,9 +6,8 @@ import android.view.View
 
 import com.bumptech.glide.Glide
 import com.devhyesun.kolinsample.R
-import com.devhyesun.kolinsample.api.GithubApi
-import com.devhyesun.kolinsample.api.GithubApiProvider
 import com.devhyesun.kolinsample.api.model.GithubRepo
+import com.devhyesun.kolinsample.api.provideGithubApi
 import kotlinx.android.synthetic.main.atv_repository.*
 
 import java.text.ParseException
@@ -20,18 +19,21 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class RepositoryActivity : AppCompatActivity() {
+    companion object {
 
-    private lateinit var api: GithubApi
-    private lateinit var githubRepoCall: Call<GithubRepo>
+        const val KEY_USER_LOGIN = "user_login"
+        const val KEY_REPO_NAME = "repo_name"
+    }
 
-    internal var dateFormatInResponse = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
-    internal var dateFormatToShow = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    private val api by lazy { provideGithubApi(this) }
+    private var githubRepoCall: Call<GithubRepo>? = null
+
+    internal val dateFormatInResponse = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
+    internal val dateFormatToShow = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.atv_repository)
-
-        api = GithubApiProvider.provideGithubApi(this)
 
         val login =
             intent.getStringExtra(KEY_USER_LOGIN) ?: throw IllegalArgumentException("No login info exists int extras")
@@ -42,11 +44,16 @@ class RepositoryActivity : AppCompatActivity() {
         showRepositoryInfo(login, repo)
     }
 
+    override fun onStop() {
+        super.onStop()
+        githubRepoCall?.run { cancel() }
+    }
+
     private fun showRepositoryInfo(login: String, repoName: String) {
         showProgress()
 
         githubRepoCall = api.getRepository(login, repoName)
-        githubRepoCall.enqueue(object : Callback<GithubRepo> {
+        githubRepoCall!!.enqueue(object : Callback<GithubRepo> {
             override fun onResponse(call: Call<GithubRepo>, response: Response<GithubRepo>) {
                 hideProgress(true)
 
@@ -101,13 +108,9 @@ class RepositoryActivity : AppCompatActivity() {
     }
 
     private fun showError(message: String?) {
-        tv_repository_message.text = message ?: "Unexpected error."
-        tv_repository_message.visibility = View.VISIBLE
-    }
-
-    companion object {
-
-        val KEY_USER_LOGIN = "user_login"
-        val KEY_REPO_NAME = "repo_name"
+        with(tv_repository_message) {
+            text = message ?: "Unexpected error."
+            visibility = View.VISIBLE
+        }
     }
 }
