@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.support.customtabs.CustomTabsIntent
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import android.widget.Button
-import android.widget.ProgressBar
 
 import android.widget.Toast
 import com.devhyesun.kolinsample.BuildConfig
@@ -17,13 +15,12 @@ import com.devhyesun.kolinsample.api.GithubApiProvider
 import com.devhyesun.kolinsample.api.model.GithubAccessToken
 import com.devhyesun.kolinsample.data.AuthTokenProvider
 import com.devhyesun.kolinsample.ui.main.MainActivity
+import kotlinx.android.synthetic.main.atv_sign_in.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class SignInActivity : AppCompatActivity() {
-    private lateinit var btnStart: Button
-    private lateinit var progressBar: ProgressBar
 
     private lateinit var api: AuthApi
     private lateinit var authTokenProvider: AuthTokenProvider
@@ -32,11 +29,8 @@ class SignInActivity : AppCompatActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.atv_sign_in)
-
-        btnStart = findViewById(R.id.btn_sign_in_start)
-        progressBar = findViewById(R.id.pb_sign_in)
-
-        btnStart.setOnClickListener {
+        
+        btn_sign_in_start.setOnClickListener {
             val authUri = Uri.Builder().scheme("https").authority("github.com")
                 .appendPath("login")
                 .appendPath("oauth")
@@ -94,13 +88,13 @@ class SignInActivity : AppCompatActivity() {
     }
 
     private fun showProgress() {
-        btnStart.visibility = View.GONE
-        progressBar.visibility = View.VISIBLE
+        btn_sign_in_start.visibility = View.GONE
+        pb_sign_in.visibility = View.VISIBLE
     }
 
     private fun hideProgress() {
-        btnStart.visibility = View.VISIBLE
-        progressBar.visibility = View.GONE
+        btn_sign_in_start.visibility = View.VISIBLE
+        pb_sign_in.visibility = View.GONE
     }
 
     private fun showError(throwable: Throwable) {

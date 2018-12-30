@@ -4,14 +4,11 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.ProgressBar
-import android.widget.TextView
 
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.GithubApi
@@ -19,15 +16,13 @@ import com.devhyesun.kolinsample.api.GithubApiProvider
 import com.devhyesun.kolinsample.api.model.GithubRepo
 import com.devhyesun.kolinsample.api.model.RepoSearchResponse
 import com.devhyesun.kolinsample.ui.repository.RepositoryActivity
+import kotlinx.android.synthetic.main.atv_search.*
 
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
-    private lateinit var rvList: RecyclerView
-    private lateinit var progressBar: ProgressBar
-    private lateinit var tvMessage: TextView
 
     private lateinit var menuSearch: MenuItem
     private lateinit var searchView: SearchView
@@ -40,15 +35,11 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.atv_search)
 
-        rvList = findViewById(R.id.rv_search_list)
-        progressBar = findViewById(R.id.pb_search)
-        tvMessage = findViewById(R.id.tv_search_message)
-
         searchAdapter = SearchAdapter()
         searchAdapter.setItemClickListener(this)
 
-        rvList.layoutManager = LinearLayoutManager(this)
-        rvList.adapter = searchAdapter
+        rv_search_list.layoutManager = LinearLayoutManager(this)
+        rv_search_list.adapter = searchAdapter
 
         api = GithubApiProvider.provideGithubApi(this)
     }
@@ -144,20 +135,20 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
     }
 
     private fun showProgress() {
-        progressBar.visibility = View.VISIBLE
+        pb_search.visibility = View.VISIBLE
     }
 
     private fun hideProgress() {
-        progressBar.visibility = View.GONE
+        pb_search.visibility = View.GONE
     }
 
     private fun showError(message: String?) {
-        tvMessage.text = message ?: "Unexpected error."
-        tvMessage.visibility = View.VISIBLE
+        tv_search_message.text = message ?: "Unexpected error."
+        tv_search_message.visibility = View.VISIBLE
     }
 
     private fun hideError() {
-        tvMessage.text = ""
-        tvMessage.visibility = View.GONE
+        tv_search_message.text = ""
+        tv_search_message.visibility = View.GONE
     }
 }
