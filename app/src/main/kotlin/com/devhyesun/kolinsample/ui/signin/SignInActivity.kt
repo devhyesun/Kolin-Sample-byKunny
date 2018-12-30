@@ -11,8 +11,8 @@ import android.widget.Toast
 import com.devhyesun.kolinsample.BuildConfig
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.AuthApi
-import com.devhyesun.kolinsample.api.GithubApiProvider
 import com.devhyesun.kolinsample.api.model.GithubAccessToken
+import com.devhyesun.kolinsample.api.provideAuthApi
 import com.devhyesun.kolinsample.data.AuthTokenProvider
 import com.devhyesun.kolinsample.ui.main.MainActivity
 import kotlinx.android.synthetic.main.atv_sign_in.*
@@ -22,9 +22,9 @@ import retrofit2.Response
 
 class SignInActivity : AppCompatActivity() {
 
-    private lateinit var api: AuthApi
-    private lateinit var authTokenProvider: AuthTokenProvider
-    private lateinit var accessTokenCall: Call<GithubAccessToken>
+    private val api by lazy { provideAuthApi()}
+    private val authTokenProvider by lazy { AuthTokenProvider(this) }
+    private var accessTokenCall: Call<GithubAccessToken>? = null
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,12 +42,15 @@ class SignInActivity : AppCompatActivity() {
             intent.launchUrl(this@SignInActivity, authUri)
         }
 
-        api = GithubApiProvider.provideAuthApi()
-        authTokenProvider = AuthTokenProvider(this)
-
         if (authTokenProvider.token != null) {
             lanchMainActivity()
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        
+        accessTokenCall?.run { cancel() }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -66,7 +69,7 @@ class SignInActivity : AppCompatActivity() {
         showProgress()
 
         accessTokenCall = api.getAccessToken(BuildConfig.GITHUB_CLIENT_ID, BuildConfig.GITHUB_CLIENT_SECRET, code)
-        accessTokenCall.enqueue(object : Callback<GithubAccessToken> {
+        accessTokenCall!!.enqueue(object : Callback<GithubAccessToken> {
             override fun onResponse(call: Call<GithubAccessToken>, response: Response<GithubAccessToken>) {
                 hideProgress()
 
