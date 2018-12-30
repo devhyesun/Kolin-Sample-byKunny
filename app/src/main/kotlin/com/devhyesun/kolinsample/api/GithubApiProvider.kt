@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 import java.io.IOException
 
-fun provideAuthApi(): AuthApi = Retrofit.Builder()
+fun provideAuthApi() = Retrofit.Builder()
     .baseUrl("https://github.com/")
     .client(provideOkHttpClient(provideLoggingInterceptor(), null))
     .addConverterFactory(GsonConverterFactory.create())
@@ -19,7 +19,7 @@ fun provideAuthApi(): AuthApi = Retrofit.Builder()
     .create(AuthApi::class.java)
 
 
-fun provideGithubApi(context: Context): GithubApi = Retrofit.Builder()
+fun provideGithubApi(context: Context) = Retrofit.Builder()
     .baseUrl("https://api.github.com/")
     .client(
         provideOkHttpClient(
@@ -34,7 +34,7 @@ fun provideGithubApi(context: Context): GithubApi = Retrofit.Builder()
 private fun provideOkHttpClient(
     interceptor: HttpLoggingInterceptor,
     authInterceptor: AuthInterceptor?
-): OkHttpClient = OkHttpClient.Builder()
+) = OkHttpClient.Builder()
     .run {
         if (authInterceptor != null) {
             addInterceptor(authInterceptor)
@@ -43,7 +43,7 @@ private fun provideOkHttpClient(
         build()
     }
 
-private fun provideLoggingInterceptor(): HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
+private fun provideLoggingInterceptor() = HttpLoggingInterceptor().apply {
     level = HttpLoggingInterceptor.Level.BODY
 }
 
@@ -53,13 +53,13 @@ private fun provideAuthInterceptor(provider: AuthTokenProvider): AuthInterceptor
     return AuthInterceptor(token)
 }
 
-private fun provideAuthTokenProvider(context: Context): AuthTokenProvider =
+private fun provideAuthTokenProvider(context: Context) =
     AuthTokenProvider(context.applicationContext)
 
 internal class AuthInterceptor(private val token: String) : Interceptor {
 
     @Throws(IOException::class)
-    override fun intercept(chain: Interceptor.Chain): Response = with(chain) {
+    override fun intercept(chain: Interceptor.Chain) = with(chain) {
         val request = request().newBuilder().run {
             addHeader("Authorization", "token $token")
             build()
