@@ -1,6 +1,5 @@
 package com.devhyesun.kolinsample.ui.search
 
-import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -12,15 +11,13 @@ import android.view.inputmethod.InputMethodManager
 
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.model.GithubRepo
-import com.devhyesun.kolinsample.api.model.RepoSearchResponse
 import com.devhyesun.kolinsample.api.provideGithubApi
 import com.devhyesun.kolinsample.ui.repository.RepositoryActivity
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.atv_search.*
 import org.jetbrains.anko.startActivity
-
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
 
@@ -29,7 +26,7 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
     private lateinit var searchAdapter: SearchAdapter
 
     private val api by lazy { provideGithubApi(this) }
-    private lateinit var searchCall: Call<RepoSearchResponse>
+    private val disposables = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,7 +69,7 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
                 }
 
                 override fun onMenuItemActionCollapse(menuItem: MenuItem): Boolean {
-                    if(searchView.query == "") {
+                    if (searchView.query == "") {
                         finish()
                     }
 
@@ -103,35 +100,28 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
     }
 
     private fun searchRepository(query: String) {
-        clearResults()
-        hideError()
-        showProgress()
-
-        searchCall = api.searchRepository(query)
-        searchCall.enqueue(object : Callback<RepoSearchResponse> {
-            override fun onResponse(call: Call<RepoSearchResponse>, response: Response<RepoSearchResponse>) {
-                hideProgress()
-
-                val searchResult = response.body()
-                if (response.isSuccessful && searchResult != null) {
-                    with(searchAdapter) {
-                        setGithubRepoList(searchResult.items)
-                        notifyDataSetChanged()
-                    }
-
-                    if (searchResult.totalCount == 0) {
-                        showError(getString(R.string.no_search_result))
-                    }
+        disposables.add(api.searchRepository(query)
+            .flatMap {
+                if (it.totalCount == 0) {
+                    Observable.error(IllegalStateException("No search result"))
                 } else {
-                    showError("Not successful: " + response.message())
+                    Observable.just(it.items)
                 }
             }
-
-            override fun onFailure(call: Call<RepoSearchResponse>, t: Throwable) {
-                hideProgress()
-                showError(t.message)
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe {
+                clearResults()
+                hideError()
+                showProgress()
             }
-        })
+            .doOnTerminate { hideProgress() }
+            .subscribe({ items ->
+                with(searchAdapter) {
+                    setGithubRepoList(items)
+                    notifyDataSetChanged()
+                }
+            })
+            { showError(it.message) })
     }
 
     private fun updateTitle(query: String) {
