@@ -8,6 +8,8 @@ import com.bumptech.glide.Glide
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.model.GithubRepo
 import com.devhyesun.kolinsample.api.provideGithubApi
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.atv_repository.*
 
 import java.text.ParseException
@@ -26,7 +28,7 @@ class RepositoryActivity : AppCompatActivity() {
     }
 
     private val api by lazy { provideGithubApi(this) }
-    private var githubRepoCall: Call<GithubRepo>? = null
+    private val disposables = CompositeDisposable()
 
     internal val dateFormatInResponse = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
     internal val dateFormatToShow = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
@@ -46,55 +48,41 @@ class RepositoryActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        githubRepoCall?.run { cancel() }
+        disposables.clear()
     }
 
     private fun showRepositoryInfo(login: String, repoName: String) {
-        showProgress()
+        disposables.add(api.getRepository(login, repoName)
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe { showProgress() }
+            .doOnError { hideProgress(false) }
+            .doOnComplete { hideProgress(true) }
+            .subscribe({ repo ->
+                Glide.with(this@RepositoryActivity)
+                    .load(repo.owner.avatarUrl)
+                    .into(iv_repository_profile)
 
-        githubRepoCall = api.getRepository(login, repoName)
-        githubRepoCall!!.enqueue(object : Callback<GithubRepo> {
-            override fun onResponse(call: Call<GithubRepo>, response: Response<GithubRepo>) {
-                hideProgress(true)
-
-                val githubRepo = response.body()
-                if (response.isSuccessful && githubRepo != null) {
-                    Glide.with(this@RepositoryActivity)
-                        .load(githubRepo.owner.avatarUrl)
-                        .into(iv_repository_profile)
-
-                    tv_repository_name.text = githubRepo.fullName
-                    tv_repository_star.text = resources.getQuantityString(R.plurals.star, githubRepo.stars, githubRepo.stars)
-
-                    if (githubRepo.description == null) {
-                        tv_repository_description.text = getString(R.string.no_description_provided)
-                    } else {
-                        tv_repository_description.text = githubRepo.description
-                    }
-
-                    if (githubRepo.language == null) {
-                        tv_repository_language.text = getString(R.string.no_language_specified)
-                    } else {
-                        tv_repository_language.text = githubRepo.language
-                    }
-
-                    try {
-                        val lastUpdate = dateFormatInResponse.parse(githubRepo.updateAt)
-                        tv_repository_last_update.text = dateFormatToShow.format(lastUpdate)
-                    } catch (e: ParseException) {
-                        tv_repository_last_update.text = getString(R.string.unknown)
-                    }
-
+                tv_repository_name.text = repo.fullName
+                tv_repository_star.text = resources.getQuantityString(R.plurals.star, repo.stars, repo.stars)
+                if(repo.description == null) {
+                    tv_repository_description.setText(R.string.no_description_provided)
                 } else {
-                    showError("Not successful : " + response.message())
+                    tv_repository_description.text = repo.description
                 }
-            }
+                if(repo.language == null) {
+                    tv_repository_language.setText(R.string.no_language_specified)
+                } else {
+                    tv_repository_language.text = repo.language
+                }
 
-            override fun onFailure(call: Call<GithubRepo>, t: Throwable) {
-                hideProgress(false)
-                showError(t.message)
-            }
-        })
+                try {
+                    val lastUpdate = dateFormatInResponse.parse(repo.updateAt)
+                    tv_repository_last_update.text = dateFormatToShow.format(lastUpdate)
+                } catch (e: ParseException) {
+                    tv_repository_last_update.setText(R.string.unknown)
+                }
+            })
+            { showError(it.message) })
     }
 
     private fun showProgress() {
