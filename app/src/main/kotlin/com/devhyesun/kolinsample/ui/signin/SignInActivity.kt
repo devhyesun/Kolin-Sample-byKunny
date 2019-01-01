@@ -9,7 +9,6 @@ import android.view.View
 
 import com.devhyesun.kolinsample.BuildConfig
 import com.devhyesun.kolinsample.R
-import com.devhyesun.kolinsample.api.model.GithubAccessToken
 import com.devhyesun.kolinsample.api.provideAuthApi
 import com.devhyesun.kolinsample.data.AuthTokenProvider
 import com.devhyesun.kolinsample.ui.main.MainActivity
@@ -20,15 +19,11 @@ import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.newTask
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class SignInActivity : AppCompatActivity() {
 
     private val api by lazy { provideAuthApi()}
     private val authTokenProvider by lazy { AuthTokenProvider(this) }
-    private var accessTokenCall: Call<GithubAccessToken>? = null
     private val disposables = CompositeDisposable()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
