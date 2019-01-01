@@ -13,6 +13,8 @@ import com.devhyesun.kolinsample.api.model.GithubAccessToken
 import com.devhyesun.kolinsample.api.provideAuthApi
 import com.devhyesun.kolinsample.data.AuthTokenProvider
 import com.devhyesun.kolinsample.ui.main.MainActivity
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.atv_sign_in.*
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.intentFor
@@ -27,6 +29,7 @@ class SignInActivity : AppCompatActivity() {
     private val api by lazy { provideAuthApi()}
     private val authTokenProvider by lazy { AuthTokenProvider(this) }
     private var accessTokenCall: Call<GithubAccessToken>? = null
+    private val disposables = CompositeDisposable()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,14 +48,14 @@ class SignInActivity : AppCompatActivity() {
         }
 
         if (authTokenProvider.token != null) {
-            lanchMainActivity()
+            launchMainActivity()
         }
     }
 
     override fun onStop() {
         super.onStop()
-        
-        accessTokenCall?.run { cancel() }
+
+        disposables.clear()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -68,28 +71,16 @@ class SignInActivity : AppCompatActivity() {
     }
 
     private fun getAccessToken(code: String) {
-        showProgress()
-
-        accessTokenCall = api.getAccessToken(BuildConfig.GITHUB_CLIENT_ID, BuildConfig.GITHUB_CLIENT_SECRET, code)
-        accessTokenCall!!.enqueue(object : Callback<GithubAccessToken> {
-            override fun onResponse(call: Call<GithubAccessToken>, response: Response<GithubAccessToken>) {
-                hideProgress()
-
-                val token = response.body()
-                if (response.isSuccessful && token != null) {
-                    authTokenProvider.updateToken(token.accessToken)
-
-                    lanchMainActivity()
-                } else {
-                    showError(IllegalStateException("Not successful : " + response.message()))
-                }
-            }
-
-            override fun onFailure(call: Call<GithubAccessToken>, t: Throwable) {
-                hideProgress()
-                showError(t)
-            }
-        })
+        disposables.add(api.getAccessToken(BuildConfig.GITHUB_CLIENT_ID, BuildConfig.GITHUB_CLIENT_SECRET, code)
+            .map { it.accessToken }
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe { showProgress() }
+            .doOnTerminate { hideProgress() }
+            .subscribe({ token ->
+                authTokenProvider.updateToken(token)
+                launchMainActivity()
+            })
+            { showError(it) })
     }
 
     private fun showProgress() {
@@ -106,7 +97,7 @@ class SignInActivity : AppCompatActivity() {
         longToast(throwable.message ?: "No message availables")
     }
 
-    private fun lanchMainActivity() {
+    private fun launchMainActivity() {
         startActivity(intentFor<MainActivity>().clearTask().newTask())
     }
 }
