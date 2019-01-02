@@ -14,6 +14,7 @@ import com.devhyesun.kolinsample.api.model.GithubRepo
 import com.devhyesun.kolinsample.api.provideGithubApi
 import com.devhyesun.kolinsample.extensions.plusAssign
 import com.devhyesun.kolinsample.ui.repository.RepositoryActivity
+import com.jakewharton.rxbinding2.widget.RxSearchView
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -28,6 +29,7 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
 
     private val api by lazy { provideGithubApi(this) }
     private val disposables = CompositeDisposable()
+    private val viewDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,26 +44,33 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+
+        disposables.clear()
+        if(isFinishing) {
+            viewDisposable.clear()
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_search, menu)
         menuSearch = menu.findItem(R.id.menu_search_query)
 
-        searchView = (menuSearch.actionView as SearchView).apply {
-            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String): Boolean {
-                    updateTitle(query)
-                    hideSoftKeyboard()
-                    collapseSearchView()
-                    searchRepository(query)
+        searchView = (menuSearch.actionView as SearchView)
 
-                    return true
-                }
-
-                override fun onQueryTextChange(s: String): Boolean {
-                    return false
-                }
-            })
-        }
+        viewDisposable += RxSearchView.queryTextChangeEvents(searchView)
+            .filter { it.isSubmitted }
+            .map { it.queryText() }
+            .filter { it.isNotEmpty() }
+            .map { it.toString() }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { query ->
+                updateTitle(query)
+                hideSoftKeyboard()
+                collapseSearchView()
+                searchRepository(query)
+            }
 
         with(menuSearch) {
             setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
