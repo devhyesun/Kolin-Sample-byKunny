@@ -11,6 +11,7 @@ import com.devhyesun.kolinsample.BuildConfig
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.provideAuthApi
 import com.devhyesun.kolinsample.data.AuthTokenProvider
+import com.devhyesun.kolinsample.extensions.plusAssign
 import com.devhyesun.kolinsample.ui.main.MainActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -66,7 +67,7 @@ class SignInActivity : AppCompatActivity() {
     }
 
     private fun getAccessToken(code: String) {
-        disposables.add(api.getAccessToken(BuildConfig.GITHUB_CLIENT_ID, BuildConfig.GITHUB_CLIENT_SECRET, code)
+        disposables += api.getAccessToken(BuildConfig.GITHUB_CLIENT_ID, BuildConfig.GITHUB_CLIENT_SECRET, code)
             .map { it.accessToken }
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { showProgress() }
@@ -75,7 +76,7 @@ class SignInActivity : AppCompatActivity() {
                 authTokenProvider.updateToken(token)
                 launchMainActivity()
             })
-            { showError(it) })
+            { showError(it) }
     }
 
     private fun showProgress() {

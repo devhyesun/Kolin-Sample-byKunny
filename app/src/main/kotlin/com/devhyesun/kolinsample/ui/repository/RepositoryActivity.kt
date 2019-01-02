@@ -8,6 +8,7 @@ import com.bumptech.glide.Glide
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.model.GithubRepo
 import com.devhyesun.kolinsample.api.provideGithubApi
+import com.devhyesun.kolinsample.extensions.plusAssign
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.atv_repository.*
@@ -52,7 +53,7 @@ class RepositoryActivity : AppCompatActivity() {
     }
 
     private fun showRepositoryInfo(login: String, repoName: String) {
-        disposables.add(api.getRepository(login, repoName)
+        disposables += api.getRepository(login, repoName)
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { showProgress() }
             .doOnError { hideProgress(false) }
@@ -82,7 +83,7 @@ class RepositoryActivity : AppCompatActivity() {
                     tv_repository_last_update.setText(R.string.unknown)
                 }
             })
-            { showError(it.message) })
+            { showError(it.message) }
     }
 
     private fun showProgress() {

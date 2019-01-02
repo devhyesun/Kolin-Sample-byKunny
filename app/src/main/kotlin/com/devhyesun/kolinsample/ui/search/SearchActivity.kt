@@ -12,6 +12,7 @@ import android.view.inputmethod.InputMethodManager
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.model.GithubRepo
 import com.devhyesun.kolinsample.api.provideGithubApi
+import com.devhyesun.kolinsample.extensions.plusAssign
 import com.devhyesun.kolinsample.ui.repository.RepositoryActivity
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -100,7 +101,7 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
     }
 
     private fun searchRepository(query: String) {
-        disposables.add(api.searchRepository(query)
+        disposables += api.searchRepository(query)
             .flatMap {
                 if (it.totalCount == 0) {
                     Observable.error(IllegalStateException("No search result"))
@@ -121,7 +122,7 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
                     notifyDataSetChanged()
                 }
             })
-            { showError(it.message) })
+            { showError(it.message) }
     }
 
     private fun updateTitle(query: String) {
