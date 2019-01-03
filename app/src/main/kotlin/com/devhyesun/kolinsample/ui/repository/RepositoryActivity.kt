@@ -7,20 +7,14 @@ import android.view.View
 import com.bumptech.glide.Glide
 import com.devhyesun.kolinsample.AutoClearedDisposable
 import com.devhyesun.kolinsample.R
-import com.devhyesun.kolinsample.api.model.GithubRepo
 import com.devhyesun.kolinsample.api.provideGithubApi
 import com.devhyesun.kolinsample.extensions.plusAssign
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.atv_repository.*
 
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
-
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class RepositoryActivity : AppCompatActivity() {
     companion object {
@@ -30,7 +24,7 @@ class RepositoryActivity : AppCompatActivity() {
     }
 
     private val api by lazy { provideGithubApi(this) }
-    private val disposables = AutoClearedDisposable()
+    private val disposables = AutoClearedDisposable(this)
 
     private val dateFormatInResponse = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
     private val dateFormatToShow = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())

@@ -15,7 +15,6 @@ import com.devhyesun.kolinsample.data.AuthTokenProvider
 import com.devhyesun.kolinsample.extensions.plusAssign
 import com.devhyesun.kolinsample.ui.main.MainActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.atv_sign_in.*
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.intentFor

@@ -18,7 +18,6 @@ import com.devhyesun.kolinsample.ui.repository.RepositoryActivity
 import com.jakewharton.rxbinding2.support.v7.widget.queryTextChangeEvents
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.atv_search.*
 import org.jetbrains.anko.startActivity
 
