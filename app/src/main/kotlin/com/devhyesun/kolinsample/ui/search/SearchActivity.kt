@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import com.devhyesun.kolinsample.AutoClearedDisposable
 
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.model.GithubRepo
@@ -28,12 +29,15 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
     private lateinit var searchAdapter: SearchAdapter
 
     private val api by lazy { provideGithubApi(this) }
-    private val disposables = CompositeDisposable()
-    private val viewDisposable = CompositeDisposable()
+    private val disposables = AutoClearedDisposable(this)
+    private val viewDisposable = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.atv_search)
+
+        lifecycle += disposables
+        lifecycle += viewDisposable
 
         searchAdapter = SearchAdapter()
         searchAdapter.setItemClickListener(this)
@@ -41,15 +45,6 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
         with(rv_search_list) {
             layoutManager = LinearLayoutManager(this@SearchActivity)
             adapter = searchAdapter
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        disposables.clear()
-        if(isFinishing) {
-            viewDisposable.clear()
         }
     }
 
