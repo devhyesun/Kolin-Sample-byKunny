@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.customtabs.CustomTabsIntent
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import com.devhyesun.kolinsample.AutoClearedDisposable
 
 import com.devhyesun.kolinsample.BuildConfig
 import com.devhyesun.kolinsample.R
@@ -25,11 +26,13 @@ class SignInActivity : AppCompatActivity() {
 
     private val api by lazy { provideAuthApi()}
     private val authTokenProvider by lazy { AuthTokenProvider(this) }
-    private val disposables = CompositeDisposable()
+    private val disposables = AutoClearedDisposable(this)
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.atv_sign_in)
+
+        lifecycle += disposables
         
         btn_sign_in_start.setOnClickListener {
             val authUri = Uri.Builder().scheme("https").authority("github.com")
@@ -46,12 +49,6 @@ class SignInActivity : AppCompatActivity() {
         if (authTokenProvider.token != null) {
             launchMainActivity()
         }
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        disposables.clear()
     }
 
     override fun onNewIntent(intent: Intent) {
