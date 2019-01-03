@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 
 import com.bumptech.glide.Glide
+import com.devhyesun.kolinsample.AutoClearedDisposable
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.model.GithubRepo
 import com.devhyesun.kolinsample.api.provideGithubApi
@@ -29,14 +30,16 @@ class RepositoryActivity : AppCompatActivity() {
     }
 
     private val api by lazy { provideGithubApi(this) }
-    private val disposables = CompositeDisposable()
+    private val disposables = AutoClearedDisposable()
 
-    internal val dateFormatInResponse = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
-    internal val dateFormatToShow = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    private val dateFormatInResponse = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
+    private val dateFormatToShow = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.atv_repository)
+
+        lifecycle += disposables
 
         val login =
             intent.getStringExtra(KEY_USER_LOGIN) ?: throw IllegalArgumentException("No login info exists int extras")
@@ -45,11 +48,6 @@ class RepositoryActivity : AppCompatActivity() {
             intent.getStringExtra(KEY_REPO_NAME) ?: throw IllegalArgumentException("No repo info exists in extras")
 
         showRepositoryInfo(login, repo)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        disposables.clear()
     }
 
     private fun showRepositoryInfo(login: String, repoName: String) {
