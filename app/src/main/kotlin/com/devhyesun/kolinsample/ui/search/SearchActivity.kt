@@ -13,11 +13,15 @@ import com.devhyesun.kolinsample.AutoClearedDisposable
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.model.GithubRepo
 import com.devhyesun.kolinsample.api.provideGithubApi
+import com.devhyesun.kolinsample.data.providerSearchHistoryDao
 import com.devhyesun.kolinsample.extensions.plusAssign
+import com.devhyesun.kolinsample.extensions.runOnIoScheduler
 import com.devhyesun.kolinsample.ui.repository.RepositoryActivity
 import com.jakewharton.rxbinding2.support.v7.widget.queryTextChangeEvents
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.atv_search.*
 import org.jetbrains.anko.startActivity
 
@@ -30,6 +34,8 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
     private val api by lazy { provideGithubApi(this) }
     private val disposables = AutoClearedDisposable(this)
     private val viewDisposable = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
+
+    private val searchHistoryDao by lazy { providerSearchHistoryDao(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,6 +103,7 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
     }
 
     override fun onItemClick(repository: GithubRepo) {
+        disposables += runOnIoScheduler { searchHistoryDao.add(repository) }
         startActivity<RepositoryActivity>(
             RepositoryActivity.KEY_USER_LOGIN to repository.owner.login,
             RepositoryActivity.KEY_REPO_NAME to repository.name
