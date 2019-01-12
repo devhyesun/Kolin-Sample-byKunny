@@ -1,18 +1,112 @@
 package com.devhyesun.kolinsample.ui.main
 
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.OnLifecycleEvent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import com.devhyesun.kolinsample.AutoClearedDisposable
 import com.devhyesun.kolinsample.R
+import com.devhyesun.kolinsample.api.model.GithubRepo
+import com.devhyesun.kolinsample.data.providerSearchHistoryDao
+import com.devhyesun.kolinsample.extensions.plusAssign
+import com.devhyesun.kolinsample.extensions.runOnIoScheduler
+import com.devhyesun.kolinsample.ui.repository.RepositoryActivity
 import com.devhyesun.kolinsample.ui.search.SearchActivity
+import com.devhyesun.kolinsample.ui.search.SearchAdapter
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.atv_main.*
 import org.jetbrains.anko.startActivity
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
+    private val adapter by lazy {
+        SearchAdapter().apply { setItemClickListener(this@MainActivity) }
+    }
+
+    private val searchHistoryDao by lazy { providerSearchHistoryDao(this) }
+
+    private val disposable = AutoClearedDisposable(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.atv_main)
 
+        lifecycle += disposable
+        lifecycle += object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            fun fetch() {
+                fetchSearchHistory()
+            }
+        }
+
         fab_main_search.setOnClickListener { startActivity<SearchActivity>() }
+
+        with(rv_main_list) {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = this@MainActivity.adapter
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(R.id.menu_main_clear_all == item.itemId) {
+            clearAll()
+            return true
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onItemClick(repository: GithubRepo) {
+        startActivity<RepositoryActivity>(
+            RepositoryActivity.KEY_USER_LOGIN to repository.owner.login,
+            RepositoryActivity.KEY_REPO_NAME to repository.name
+        )
+    }
+
+    private fun fetchSearchHistory(): Disposable = searchHistoryDao.getHistory()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe({ items ->
+            with(adapter) {
+                setGithubRepoList(items)
+                notifyDataSetChanged()
+            }
+
+            if(items.isEmpty()) {
+                showMessage(getString(R.string.no_recent_repositories))
+            } else {
+                hideMessage()
+            }
+        })
+        { showMessage(it.message) }
+
+    private fun clearAll() {
+        disposable += runOnIoScheduler { searchHistoryDao.clearAll() }
+    }
+
+    private fun showMessage(message: String?) {
+        with(tv_main_message) {
+            text = message ?: "Unexpected error."
+            visibility = View.VISIBLE
+        }
+    }
+
+    private fun hideMessage() {
+        with(tv_main_message) {
+            text = ""
+            visibility = View.GONE
+        }
     }
 }
