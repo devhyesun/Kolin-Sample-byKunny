@@ -23,7 +23,7 @@ import org.jetbrains.anko.longToast
 import org.jetbrains.anko.newTask
 
 class SignInActivity : AppCompatActivity() {
-    
+
     private val disposables = AutoClearedDisposable(this)
     private val viewDisposables = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
 
@@ -91,8 +91,7 @@ class SignInActivity : AppCompatActivity() {
     private fun getAccessToken(code: String) {
         disposables += viewModel.requestAccessToken(
             BuildConfig.GITHUB_CLIENT_ID,
-            BuildConfig.GITHUB_CLIENT_SECRET
-        )
+            BuildConfig.GITHUB_CLIENT_SECRET, code)
     }
 
     private fun showProgress() {
