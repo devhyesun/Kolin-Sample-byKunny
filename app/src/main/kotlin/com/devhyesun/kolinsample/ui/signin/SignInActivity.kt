@@ -23,10 +23,7 @@ import org.jetbrains.anko.longToast
 import org.jetbrains.anko.newTask
 
 class SignInActivity : AppCompatActivity() {
-
-    private val api by lazy { provideAuthApi()}
-    private val authTokenProvider by lazy { AuthTokenProvider(this) }
-
+    
     private val disposables = AutoClearedDisposable(this)
     private val viewDisposables = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
 
