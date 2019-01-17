@@ -1,14 +1,13 @@
 package com.devhyesun.kolinsample.ui.main
 
-import android.arch.lifecycle.Lifecycle
-import android.arch.lifecycle.LifecycleObserver
-import android.arch.lifecycle.OnLifecycleEvent
+import android.arch.lifecycle.*
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import com.devhyesun.kolinsample.AutoActivatedDisposable
 import com.devhyesun.kolinsample.AutoClearedDisposable
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.model.GithubRepo
@@ -31,18 +30,36 @@ class MainActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
 
     private val searchHistoryDao by lazy { providerSearchHistoryDao(this) }
 
-    private val disposable = AutoClearedDisposable(this)
+    private val disposables = AutoClearedDisposable(this)
+    private val viewDisposable = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
+
+    private val viewModelFactory by lazy { MainViewModelFactory(providerSearchHistoryDao(this)) }
+
+    private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.atv_main)
 
-        lifecycle += disposable
-        lifecycle += object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            fun fetch() {
-                fetchSearchHistory()
-            }
+        viewModel = ViewModelProviders.of(this, viewModelFactory)[MainViewModel::class.java]
+
+        lifecycle += disposables
+        lifecycle += viewDisposable
+        lifecycle += AutoActivatedDisposable(this) {
+            viewModel.searchHistory
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { items ->
+                    with(adapter) {
+                        if(items.isEmpty) {
+                            clearGihubRepoList()
+                        } else {
+                            setGithubRepoList(items.value)
+                        }
+
+                        notifyDataSetChanged()
+                    }
+                }
         }
 
         fab_main_search.setOnClickListener { startActivity<SearchActivity>() }
@@ -51,6 +68,16 @@ class MainActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = this@MainActivity.adapter
         }
+
+        viewDisposable += viewModel.message 
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { message -> 
+                if(message.isEmpty) {
+                    hideMessage()
+                } else {
+                    showMessage(message.value)
+                }
+            }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -61,7 +88,7 @@ class MainActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if(R.id.menu_main_clear_all == item.itemId) {
-            clearAll()
+            disposables += viewModel.clearSearchHistory()
             return true
         }
 
@@ -73,27 +100,6 @@ class MainActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
             RepositoryActivity.KEY_USER_LOGIN to repository.owner.login,
             RepositoryActivity.KEY_REPO_NAME to repository.name
         )
-    }
-
-    private fun fetchSearchHistory(): Disposable = searchHistoryDao.getHistory()
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({ items ->
-            with(adapter) {
-                setGithubRepoList(items)
-                notifyDataSetChanged()
-            }
-
-            if(items.isEmpty()) {
-                showMessage(getString(R.string.no_recent_repositories))
-            } else {
-                hideMessage()
-            }
-        })
-        { showMessage(it.message) }
-
-    private fun clearAll() {
-        disposable += runOnIoScheduler { searchHistoryDao.clearAll() }
     }
 
     private fun showMessage(message: String?) {
