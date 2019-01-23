@@ -1,5 +1,6 @@
 package com.devhyesun.kolinsample.ui.repository
 
+import android.arch.lifecycle.ViewModelProviders
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -25,6 +26,11 @@ class RepositoryActivity : AppCompatActivity() {
 
     private val api by lazy { provideGithubApi(this) }
     private val disposables = AutoClearedDisposable(this)
+    private val viewDisposables = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
+
+    private val viewModelFactory by lazy { RepositoryViewModelFactory(provideGithubApi(this)) }
+
+    lateinit var viewModel: RepositoryViewModel
 
     private val dateFormatInResponse = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.getDefault())
     private val dateFormatToShow = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
@@ -33,7 +39,57 @@ class RepositoryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.atv_repository)
 
+        viewModel = ViewModelProviders.of(this, viewModelFactory)[RepositoryViewModel::class.java]
+
         lifecycle += disposables
+        lifecycle += viewDisposables
+
+        viewDisposables += viewModel.repository
+            .filter { !it.isEmpty }
+            .map { it.value }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { repository ->
+                Glide.with(this@RepositoryActivity)
+                    .load(repository.owner.avatarUrl)
+                    .into(iv_repository_profile)
+                tv_repository_name.text = repository.fullName
+                tv_repository_star.text = resources.getQuantityString(R.plurals.star, repository.stars, repository.stars)
+                if(repository.description == null) {
+                    tv_repository_description.setText(R.string.no_description_provided)
+                } else {
+                    tv_repository_description.text = repository.description
+                }
+                if(repository.language == null) {
+                    tv_repository_language.setText(R.string.no_language_specified)
+                } else {
+                    tv_repository_language.text = repository.language
+                }
+
+                try {
+                    val lastUpdate = dateFormatInResponse.parse(repository.updateAt)
+                    tv_repository_last_update.text = dateFormatToShow.format(lastUpdate)
+                } catch (e: ParseException) {
+                    tv_repository_last_update.text = getString(R.string.unknown)
+                }
+            }
+
+        viewDisposables += viewModel.message
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { message -> showError(message) }
+
+        viewDisposables += viewModel.isContentVisible
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { visible -> setContentVisible(visible) }
+
+        viewDisposables += viewModel.isLoading
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { isLoading ->
+                if(isLoading) {
+                    showProgress()
+                } else {
+                    hideProgress()
+                }
+            }
 
         val login =
             intent.getStringExtra(KEY_USER_LOGIN) ?: throw IllegalArgumentException("No login info exists int extras")
@@ -41,41 +97,8 @@ class RepositoryActivity : AppCompatActivity() {
         val repo =
             intent.getStringExtra(KEY_REPO_NAME) ?: throw IllegalArgumentException("No repo info exists in extras")
 
-        showRepositoryInfo(login, repo)
-    }
+        disposables += viewModel.requestRepositoryInfo(login, repo)
 
-    private fun showRepositoryInfo(login: String, repoName: String) {
-        disposables += api.getRepository(login, repoName)
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSubscribe { showProgress() }
-            .doOnError { hideProgress(false) }
-            .doOnComplete { hideProgress(true) }
-            .subscribe({ repo ->
-                Glide.with(this@RepositoryActivity)
-                    .load(repo.owner.avatarUrl)
-                    .into(iv_repository_profile)
-
-                tv_repository_name.text = repo.fullName
-                tv_repository_star.text = resources.getQuantityString(R.plurals.star, repo.stars, repo.stars)
-                if(repo.description == null) {
-                    tv_repository_description.setText(R.string.no_description_provided)
-                } else {
-                    tv_repository_description.text = repo.description
-                }
-                if(repo.language == null) {
-                    tv_repository_language.setText(R.string.no_language_specified)
-                } else {
-                    tv_repository_language.text = repo.language
-                }
-
-                try {
-                    val lastUpdate = dateFormatInResponse.parse(repo.updateAt)
-                    tv_repository_last_update.text = dateFormatToShow.format(lastUpdate)
-                } catch (e: ParseException) {
-                    tv_repository_last_update.setText(R.string.unknown)
-                }
-            })
-            { showError(it.message) }
     }
 
     private fun showProgress() {
@@ -83,9 +106,12 @@ class RepositoryActivity : AppCompatActivity() {
         pb_repository.visibility = View.VISIBLE
     }
 
-    private fun hideProgress(isSucceed: Boolean) {
-        cl_repository_content.visibility = if (isSucceed) View.VISIBLE else View.GONE
+    private fun hideProgress() {
         pb_repository.visibility = View.GONE
+    }
+
+    private fun setContentVisible(show: Boolean) {
+        cl_repository_content.visibility = if(show) View.VISIBLE else View.GONE
     }
 
     private fun showError(message: String?) {
