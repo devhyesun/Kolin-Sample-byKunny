@@ -7,8 +7,8 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import com.devhyesun.kolinsample.AutoActivatedDisposable
-import com.devhyesun.kolinsample.AutoClearedDisposable
+import com.devhyesun.kolinsample.rx.AutoActivatedDisposable
+import com.devhyesun.kolinsample.rx.AutoClearedDisposable
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.model.GithubRepo
 import com.devhyesun.kolinsample.data.providerSearchHistoryDao
@@ -28,7 +28,8 @@ class MainActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
 
 
     private val disposables = AutoClearedDisposable(this)
-    private val viewDisposable = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
+    private val viewDisposable =
+        AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
 
     private val viewModelFactory by lazy { MainViewModelFactory(providerSearchHistoryDao(this)) }
 
@@ -48,7 +49,7 @@ class MainActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { items ->
                     with(adapter) {
-                        if(items.isEmpty) {
+                        if (items.isEmpty) {
                             clearGihubRepoList()
                         } else {
                             setGithubRepoList(items.value)

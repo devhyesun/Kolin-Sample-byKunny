@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.view.View
 
 import com.bumptech.glide.Glide
-import com.devhyesun.kolinsample.AutoClearedDisposable
+import com.devhyesun.kolinsample.rx.AutoClearedDisposable
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.provideGithubApi
 import com.devhyesun.kolinsample.extensions.plusAssign
@@ -26,7 +26,8 @@ class RepositoryActivity : AppCompatActivity() {
 
     private val api by lazy { provideGithubApi(this) }
     private val disposables = AutoClearedDisposable(this)
-    private val viewDisposables = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
+    private val viewDisposables =
+        AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
 
     private val viewModelFactory by lazy { RepositoryViewModelFactory(provideGithubApi(this)) }
 

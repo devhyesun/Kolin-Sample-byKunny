@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.support.customtabs.CustomTabsIntent
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import com.devhyesun.kolinsample.AutoClearedDisposable
+import com.devhyesun.kolinsample.rx.AutoClearedDisposable
 
 import com.devhyesun.kolinsample.BuildConfig
 import com.devhyesun.kolinsample.R
@@ -25,7 +25,8 @@ import org.jetbrains.anko.newTask
 class SignInActivity : AppCompatActivity() {
 
     private val disposables = AutoClearedDisposable(this)
-    private val viewDisposables = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
+    private val viewDisposables =
+        AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
 
     private val viewModelFactory by lazy {
         SignInViewModelFactory(provideAuthApi(), AuthTokenProvider(this))

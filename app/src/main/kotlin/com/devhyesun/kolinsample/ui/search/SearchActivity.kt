@@ -9,7 +9,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import com.devhyesun.kolinsample.AutoClearedDisposable
+import com.devhyesun.kolinsample.rx.AutoClearedDisposable
 
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.model.GithubRepo
@@ -29,7 +29,8 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
     private lateinit var searchAdapter: SearchAdapter
 
     private val disposables = AutoClearedDisposable(this)
-    private val viewDisposable = AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
+    private val viewDisposable =
+        AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
 
     private val viewModelFactory by lazy { SearchViewModelFactory(provideGithubApi(this), providerSearchHistoryDao(this)) }
 

@@ -1,4 +1,4 @@
-package com.devhyesun.kolinsample
+package com.devhyesun.kolinsample.rx
 
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleObserver

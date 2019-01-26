@@ -1,6 +1,6 @@
 package com.devhyesun.kolinsample.extensions
 
-import com.devhyesun.kolinsample.AutoClearedDisposable
+import com.devhyesun.kolinsample.rx.AutoClearedDisposable
 import io.reactivex.Completable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
