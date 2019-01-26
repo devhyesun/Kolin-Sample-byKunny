@@ -59,7 +59,7 @@ private fun provideAuthInterceptor(provider: AuthTokenProvider): AuthInterceptor
 private fun provideAuthTokenProvider(context: Context) =
     AuthTokenProvider(context.applicationContext)
 
-internal class AuthInterceptor(private val token: String) : Interceptor {
+class AuthInterceptor(private val token: String) : Interceptor {
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain) = with(chain) {
