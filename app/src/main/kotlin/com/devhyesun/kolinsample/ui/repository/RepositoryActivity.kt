@@ -1,14 +1,12 @@
 package com.devhyesun.kolinsample.ui.repository
 
 import android.arch.lifecycle.ViewModelProviders
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 
 import com.bumptech.glide.Glide
 import com.devhyesun.kolinsample.rx.AutoClearedDisposable
 import com.devhyesun.kolinsample.R
-import com.devhyesun.kolinsample.api.GithubApi
 import com.devhyesun.kolinsample.extensions.plusAssign
 import dagger.android.support.DaggerAppCompatActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -26,13 +24,11 @@ class RepositoryActivity : DaggerAppCompatActivity() {
         const val KEY_REPO_NAME = "repo_name"
     }
 
-    @Inject lateinit var githubApi: GithubApi
+    @Inject lateinit var viewModelFactory: RepositoryViewModelFactory
 
     private val disposables = AutoClearedDisposable(this)
     private val viewDisposables =
         AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
-
-    private val viewModelFactory by lazy { RepositoryViewModelFactory(githubApi) }
 
     lateinit var viewModel: RepositoryViewModel
 
