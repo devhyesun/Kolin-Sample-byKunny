@@ -11,9 +11,7 @@ import android.view.inputmethod.InputMethodManager
 import com.devhyesun.kolinsample.rx.AutoClearedDisposable
 
 import com.devhyesun.kolinsample.R
-import com.devhyesun.kolinsample.api.GithubApi
 import com.devhyesun.kolinsample.api.model.GithubRepo
-import com.devhyesun.kolinsample.data.SearchHistoryDao
 import com.devhyesun.kolinsample.extensions.plusAssign
 import com.devhyesun.kolinsample.ui.repository.RepositoryActivity
 import com.jakewharton.rxbinding2.support.v7.widget.queryTextChangeEvents
@@ -24,8 +22,9 @@ import org.jetbrains.anko.startActivity
 import javax.inject.Inject
 
 class SearchActivity : DaggerAppCompatActivity(), SearchAdapter.ItemClickListener {
-    @Inject lateinit var githubApi: GithubApi
-    @Inject lateinit var searchHistoryDao: SearchHistoryDao
+
+    @Inject lateinit var adapter: SearchAdapter
+    @Inject lateinit var viewModelFactory: SearchViewModelFactory
 
     private lateinit var menuSearch: MenuItem
     private lateinit var searchView: SearchView
@@ -34,8 +33,6 @@ class SearchActivity : DaggerAppCompatActivity(), SearchAdapter.ItemClickListene
     private val disposables = AutoClearedDisposable(this)
     private val viewDisposable =
         AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
-
-    private val viewModelFactory by lazy { SearchViewModelFactory(githubApi, searchHistoryDao) }
 
     lateinit var viewModel: SearchViewModel
 
@@ -53,7 +50,7 @@ class SearchActivity : DaggerAppCompatActivity(), SearchAdapter.ItemClickListene
 
         with(rv_search_list) {
             layoutManager = LinearLayoutManager(this@SearchActivity)
-            adapter = searchAdapter
+            adapter = this@SearchActivity.adapter
         }
 
         viewDisposable += viewModel.searchResult

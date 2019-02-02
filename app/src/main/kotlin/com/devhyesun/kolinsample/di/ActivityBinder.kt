@@ -4,6 +4,7 @@ import com.devhyesun.kolinsample.ui.main.MainActivity
 import com.devhyesun.kolinsample.ui.main.MainModule
 import com.devhyesun.kolinsample.ui.repository.RepositoryActivity
 import com.devhyesun.kolinsample.ui.search.SearchActivity
+import com.devhyesun.kolinsample.ui.search.SearchModule
 import com.devhyesun.kolinsample.ui.signin.SignInActivity
 import com.devhyesun.kolinsample.ui.signin.SignInModule
 import dagger.Module
@@ -18,7 +19,7 @@ abstract class ActivityBinder {
     @ContributesAndroidInjector(modules = [MainModule::class])
     abstract fun bindMainActivity(): MainActivity
 
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [SearchModule::class])
     abstract fun bindSearchActivity(): SearchActivity
 
     @ContributesAndroidInjector
