@@ -10,7 +10,6 @@ import com.devhyesun.kolinsample.rx.AutoActivatedDisposable
 import com.devhyesun.kolinsample.rx.AutoClearedDisposable
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.model.GithubRepo
-import com.devhyesun.kolinsample.data.SearchHistoryDao
 import com.devhyesun.kolinsample.extensions.plusAssign
 import com.devhyesun.kolinsample.ui.repository.RepositoryActivity
 import com.devhyesun.kolinsample.ui.search.SearchActivity
@@ -23,17 +22,13 @@ import org.jetbrains.anko.startActivity
 import javax.inject.Inject
 
 class MainActivity : DaggerAppCompatActivity(), SearchAdapter.ItemClickListener {
-    @Inject lateinit var searchHistoryDao: SearchHistoryDao
-
-    private val adapter by lazy {
-        SearchAdapter().apply { setItemClickListener(this@MainActivity) }
-    }
+    @Inject lateinit var adapter: SearchAdapter
+    @Inject lateinit var viewModelFactory: MainViewModelFactory
 
     private val disposables = AutoClearedDisposable(this)
+
     private val viewDisposable =
         AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
-
-    private val viewModelFactory by lazy { MainViewModelFactory(searchHistoryDao) }
 
     private lateinit var viewModel: MainViewModel
 
