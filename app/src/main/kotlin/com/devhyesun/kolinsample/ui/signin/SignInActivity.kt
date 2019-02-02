@@ -10,8 +10,6 @@ import com.devhyesun.kolinsample.rx.AutoClearedDisposable
 
 import com.devhyesun.kolinsample.BuildConfig
 import com.devhyesun.kolinsample.R
-import com.devhyesun.kolinsample.api.AuthApi
-import com.devhyesun.kolinsample.data.AuthTokenProvider
 import com.devhyesun.kolinsample.extensions.plusAssign
 import com.devhyesun.kolinsample.ui.main.MainActivity
 import dagger.android.support.DaggerAppCompatActivity
@@ -25,16 +23,11 @@ import javax.inject.Inject
 
 class SignInActivity : DaggerAppCompatActivity() {
 
-    @Inject lateinit var authApi: AuthApi
-    @Inject lateinit var authTokenProvider: AuthTokenProvider
+    @Inject lateinit var viewModelFactory: SignInViewModelFactory
 
     private val disposables = AutoClearedDisposable(this)
     private val viewDisposables =
         AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
-
-    private val viewModelFactory by lazy {
-        SignInViewModelFactory(authApi, authTokenProvider)
-    }
 
     lateinit var viewModel: SignInViewModel
 
