@@ -5,31 +5,35 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.customtabs.CustomTabsIntent
-import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.devhyesun.kolinsample.rx.AutoClearedDisposable
 
 import com.devhyesun.kolinsample.BuildConfig
 import com.devhyesun.kolinsample.R
-import com.devhyesun.kolinsample.api.provideAuthApi
+import com.devhyesun.kolinsample.api.AuthApi
 import com.devhyesun.kolinsample.data.AuthTokenProvider
 import com.devhyesun.kolinsample.extensions.plusAssign
 import com.devhyesun.kolinsample.ui.main.MainActivity
+import dagger.android.support.DaggerAppCompatActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.atv_sign_in.*
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.newTask
+import javax.inject.Inject
 
-class SignInActivity : AppCompatActivity() {
+class SignInActivity : DaggerAppCompatActivity() {
+
+    @Inject lateinit var authApi: AuthApi
+    @Inject lateinit var authTokenProvider: AuthTokenProvider
 
     private val disposables = AutoClearedDisposable(this)
     private val viewDisposables =
         AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
 
     private val viewModelFactory by lazy {
-        SignInViewModelFactory(provideAuthApi(), AuthTokenProvider(this))
+        SignInViewModelFactory(authApi, authTokenProvider)
     }
 
     lateinit var viewModel: SignInViewModel

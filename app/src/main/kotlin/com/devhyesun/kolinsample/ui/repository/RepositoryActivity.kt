@@ -8,28 +8,31 @@ import android.view.View
 import com.bumptech.glide.Glide
 import com.devhyesun.kolinsample.rx.AutoClearedDisposable
 import com.devhyesun.kolinsample.R
-import com.devhyesun.kolinsample.api.provideGithubApi
+import com.devhyesun.kolinsample.api.GithubApi
 import com.devhyesun.kolinsample.extensions.plusAssign
+import dagger.android.support.DaggerAppCompatActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.atv_repository.*
 
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
+import javax.inject.Inject
 
-class RepositoryActivity : AppCompatActivity() {
+class RepositoryActivity : DaggerAppCompatActivity() {
     companion object {
 
         const val KEY_USER_LOGIN = "user_login"
         const val KEY_REPO_NAME = "repo_name"
     }
 
-    private val api by lazy { provideGithubApi(this) }
+    @Inject lateinit var githubApi: GithubApi
+
     private val disposables = AutoClearedDisposable(this)
     private val viewDisposables =
         AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
 
-    private val viewModelFactory by lazy { RepositoryViewModelFactory(provideGithubApi(this)) }
+    private val viewModelFactory by lazy { RepositoryViewModelFactory(githubApi) }
 
     lateinit var viewModel: RepositoryViewModel
 

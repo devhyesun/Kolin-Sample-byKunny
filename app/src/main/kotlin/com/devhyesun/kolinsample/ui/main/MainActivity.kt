@@ -1,7 +1,6 @@
 package com.devhyesun.kolinsample.ui.main
 
 import android.arch.lifecycle.*
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
@@ -11,27 +10,30 @@ import com.devhyesun.kolinsample.rx.AutoActivatedDisposable
 import com.devhyesun.kolinsample.rx.AutoClearedDisposable
 import com.devhyesun.kolinsample.R
 import com.devhyesun.kolinsample.api.model.GithubRepo
-import com.devhyesun.kolinsample.data.providerSearchHistoryDao
+import com.devhyesun.kolinsample.data.SearchHistoryDao
 import com.devhyesun.kolinsample.extensions.plusAssign
 import com.devhyesun.kolinsample.ui.repository.RepositoryActivity
 import com.devhyesun.kolinsample.ui.search.SearchActivity
 import com.devhyesun.kolinsample.ui.search.SearchAdapter
+import dagger.android.support.DaggerAppCompatActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.atv_main.*
 import org.jetbrains.anko.startActivity
+import javax.inject.Inject
 
-class MainActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
+class MainActivity : DaggerAppCompatActivity(), SearchAdapter.ItemClickListener {
+    @Inject lateinit var searchHistoryDao: SearchHistoryDao
+
     private val adapter by lazy {
         SearchAdapter().apply { setItemClickListener(this@MainActivity) }
     }
-
 
     private val disposables = AutoClearedDisposable(this)
     private val viewDisposable =
         AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
 
-    private val viewModelFactory by lazy { MainViewModelFactory(providerSearchHistoryDao(this)) }
+    private val viewModelFactory by lazy { MainViewModelFactory(searchHistoryDao) }
 
     private lateinit var viewModel: MainViewModel
 

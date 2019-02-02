@@ -1,7 +1,6 @@
 package com.devhyesun.kolinsample.ui.search
 
 import android.arch.lifecycle.ViewModelProviders
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.SearchView
@@ -12,17 +11,21 @@ import android.view.inputmethod.InputMethodManager
 import com.devhyesun.kolinsample.rx.AutoClearedDisposable
 
 import com.devhyesun.kolinsample.R
+import com.devhyesun.kolinsample.api.GithubApi
 import com.devhyesun.kolinsample.api.model.GithubRepo
-import com.devhyesun.kolinsample.api.provideGithubApi
-import com.devhyesun.kolinsample.data.providerSearchHistoryDao
+import com.devhyesun.kolinsample.data.SearchHistoryDao
 import com.devhyesun.kolinsample.extensions.plusAssign
 import com.devhyesun.kolinsample.ui.repository.RepositoryActivity
 import com.jakewharton.rxbinding2.support.v7.widget.queryTextChangeEvents
+import dagger.android.support.DaggerAppCompatActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.atv_search.*
 import org.jetbrains.anko.startActivity
+import javax.inject.Inject
 
-class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
+class SearchActivity : DaggerAppCompatActivity(), SearchAdapter.ItemClickListener {
+    @Inject lateinit var githubApi: GithubApi
+    @Inject lateinit var searchHistoryDao: SearchHistoryDao
 
     private lateinit var menuSearch: MenuItem
     private lateinit var searchView: SearchView
@@ -32,7 +35,7 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
     private val viewDisposable =
         AutoClearedDisposable(lifecycleOwner = this, alwaysClearOnStop = false)
 
-    private val viewModelFactory by lazy { SearchViewModelFactory(provideGithubApi(this), providerSearchHistoryDao(this)) }
+    private val viewModelFactory by lazy { SearchViewModelFactory(githubApi, searchHistoryDao) }
 
     lateinit var viewModel: SearchViewModel
 
@@ -154,13 +157,6 @@ class SearchActivity : AppCompatActivity(), SearchAdapter.ItemClickListener {
 
     private fun collapseSearchView() {
         menuSearch.collapseActionView()
-    }
-
-    private fun clearResults() {
-        with(searchAdapter) {
-            clearGihubRepoList()
-            notifyDataSetChanged()
-        }
     }
 
     private fun showProgress() {
