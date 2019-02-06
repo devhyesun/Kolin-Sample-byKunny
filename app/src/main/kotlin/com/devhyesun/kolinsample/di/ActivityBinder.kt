@@ -1,13 +1,13 @@
 package com.devhyesun.kolinsample.di
 
 import com.devhyesun.kolinsample.ui.main.MainActivity
-import com.devhyesun.kolinsample.ui.main.MainModule
+import com.devhyesun.kolinsample.di.ui.MainModule
 import com.devhyesun.kolinsample.ui.repository.RepositoryActivity
-import com.devhyesun.kolinsample.ui.repository.RepositoryModule
+import com.devhyesun.kolinsample.di.ui.RepositoryModule
 import com.devhyesun.kolinsample.ui.search.SearchActivity
-import com.devhyesun.kolinsample.ui.search.SearchModule
+import com.devhyesun.kolinsample.di.ui.SearchModule
 import com.devhyesun.kolinsample.ui.signin.SignInActivity
-import com.devhyesun.kolinsample.ui.signin.SignInModule
+import com.devhyesun.kolinsample.di.ui.SignInModule
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 

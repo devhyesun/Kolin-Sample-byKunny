@@ -28,7 +28,6 @@ class SearchActivity : DaggerAppCompatActivity(), SearchAdapter.ItemClickListene
 
     private lateinit var menuSearch: MenuItem
     private lateinit var searchView: SearchView
-    private lateinit var searchAdapter: SearchAdapter
 
     private val disposables = AutoClearedDisposable(this)
     private val viewDisposable =
@@ -45,9 +44,6 @@ class SearchActivity : DaggerAppCompatActivity(), SearchAdapter.ItemClickListene
         lifecycle += disposables
         lifecycle += viewDisposable
 
-        searchAdapter = SearchAdapter()
-        searchAdapter.setItemClickListener(this)
-
         with(rv_search_list) {
             layoutManager = LinearLayoutManager(this@SearchActivity)
             adapter = this@SearchActivity.adapter
@@ -56,7 +52,7 @@ class SearchActivity : DaggerAppCompatActivity(), SearchAdapter.ItemClickListene
         viewDisposable += viewModel.searchResult
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { items ->
-                with(searchAdapter) {
+                with(adapter) {
                     if(items.isEmpty) {
                         clearGihubRepoList()
                     } else {

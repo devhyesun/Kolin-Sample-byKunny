@@ -1,7 +1,10 @@
-package com.devhyesun.kolinsample.ui.search
+package com.devhyesun.kolinsample.di.ui
 
 import com.devhyesun.kolinsample.api.GithubApi
 import com.devhyesun.kolinsample.data.SearchHistoryDao
+import com.devhyesun.kolinsample.ui.search.SearchActivity
+import com.devhyesun.kolinsample.ui.search.SearchAdapter
+import com.devhyesun.kolinsample.ui.search.SearchViewModelFactory
 import dagger.Module
 import dagger.Provides
 
